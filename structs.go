@@ -15,28 +15,30 @@ type CodeActivity interface {
 	GetID() string
 	GetType() string
 	GetCreatedAt() time.Time
+	IsPublic() bool
 }
 
 type TypedEvent struct {
 	Id        string    `json:"id"`
 	Type      string    `json:"type"`
 	CreatedAt time.Time `json:"created_at"`
+	Public    bool      `json:"public"`
 }
 
 func (e *TypedEvent) IsCode() bool {
 	return false
 }
-
 func (e *TypedEvent) GetID() string {
 	return e.Id
 }
-
 func (e *TypedEvent) GetType() string {
 	return e.Type
 }
-
 func (e *TypedEvent) GetCreatedAt() time.Time {
 	return e.CreatedAt
+}
+func (e *TypedEvent) IsPublic() bool {
+	return e.Public
 }
 
 // ------------------------------------------------
@@ -74,7 +76,6 @@ type EventPush struct {
 			Url      string `json:"url"`
 		} `json:"commits"`
 	} `json:"payload"`
-	Public bool `json:"public"`
 }
 
 func (e *EventPush) IsCode() bool {
@@ -88,6 +89,10 @@ func (e *EventPush) GetType() string {
 }
 func (e *EventPush) GetCreatedAt() time.Time {
 	return e.CreatedAt
+}
+
+func (e *EventPush) IsPublic() bool {
+	return e.Public
 }
 
 // ------------------------------------------------
@@ -129,6 +134,9 @@ func (e *EventCreate) GetType() string {
 func (e *EventCreate) GetCreatedAt() time.Time {
 	return e.CreatedAt
 }
+func (e *EventCreate) IsPublic() bool {
+	return e.Public
+}
 
 // ------------------------------------------------
 
@@ -164,6 +172,9 @@ func (e *EventWatch) GetType() string {
 }
 func (e *EventWatch) GetCreatedAt() time.Time {
 	return e.CreatedAt
+}
+func (e *EventWatch) IsPublic() bool {
+	return e.Public
 }
 
 // ------------------------------------------------
@@ -266,6 +277,9 @@ func (e *EventIssue) GetType() string {
 }
 func (e *EventIssue) GetCreatedAt() time.Time {
 	return e.CreatedAt
+}
+func (e *EventIssue) IsPublic() bool {
+	return e.Public
 }
 
 // ------------------------------------------------
@@ -656,4 +670,7 @@ func (e *EventPullRequest) GetType() string {
 }
 func (e *EventPullRequest) GetCreatedAt() time.Time {
 	return e.CreatedAt
+}
+func (e *EventPullRequest) IsPublic() bool {
+	return e.Public
 }
