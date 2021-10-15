@@ -12,12 +12,34 @@ const (
 
 type CodeActivity interface {
 	IsCode() bool
+	GetID() string
+	GetType() string
+	GetCreatedAt() time.Time
 }
 
 type TypedEvent struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
+	Id        string    `json:"id"`
+	Type      string    `json:"type"`
+	CreatedAt time.Time `json:"created_at"`
 }
+
+func (e *TypedEvent) IsCode() bool {
+	return false
+}
+
+func (e *TypedEvent) GetID() string {
+	return e.Id
+}
+
+func (e *TypedEvent) GetType() string {
+	return e.Type
+}
+
+func (e *TypedEvent) GetCreatedAt() time.Time {
+	return e.CreatedAt
+}
+
+// ------------------------------------------------
 
 type EventPush struct {
 	*TypedEvent
@@ -52,13 +74,23 @@ type EventPush struct {
 			Url      string `json:"url"`
 		} `json:"commits"`
 	} `json:"payload"`
-	Public    bool      `json:"public"`
-	CreatedAt time.Time `json:"created_at"`
+	Public bool `json:"public"`
 }
 
 func (e *EventPush) IsCode() bool {
 	return true
 }
+func (e *EventPush) GetID() string {
+	return e.Id
+}
+func (e *EventPush) GetType() string {
+	return e.Type
+}
+func (e *EventPush) GetCreatedAt() time.Time {
+	return e.CreatedAt
+}
+
+// ------------------------------------------------
 
 type EventCreate struct {
 	*TypedEvent
@@ -82,13 +114,23 @@ type EventCreate struct {
 		Description  string      `json:"description"`
 		PusherType   string      `json:"pusher_type"`
 	} `json:"payload"`
-	Public    bool      `json:"public"`
-	CreatedAt time.Time `json:"created_at"`
+	Public bool `json:"public"`
 }
 
 func (e *EventCreate) IsCode() bool {
 	return true
 }
+func (e *EventCreate) GetID() string {
+	return e.Id
+}
+func (e *EventCreate) GetType() string {
+	return e.Type
+}
+func (e *EventCreate) GetCreatedAt() time.Time {
+	return e.CreatedAt
+}
+
+// ------------------------------------------------
 
 type EventWatch struct {
 	*TypedEvent
@@ -108,13 +150,23 @@ type EventWatch struct {
 	Payload struct {
 		Action string `json:"action"`
 	} `json:"payload"`
-	Public    bool      `json:"public"`
-	CreatedAt time.Time `json:"created_at"`
+	Public bool `json:"public"`
 }
 
 func (e *EventWatch) IsCode() bool {
 	return false
 }
+func (e *EventWatch) GetID() string {
+	return e.Id
+}
+func (e *EventWatch) GetType() string {
+	return e.Type
+}
+func (e *EventWatch) GetCreatedAt() time.Time {
+	return e.CreatedAt
+}
+
+// ------------------------------------------------
 
 type EventIssue struct {
 	*TypedEvent
@@ -193,9 +245,8 @@ type EventIssue struct {
 			PerformedViaGithubApp interface{} `json:"performed_via_github_app"`
 		} `json:"issue"`
 	} `json:"payload"`
-	Public    bool      `json:"public"`
-	CreatedAt time.Time `json:"created_at"`
-	Org       struct {
+	Public bool `json:"public"`
+	Org    struct {
 		Id         int    `json:"id"`
 		Login      string `json:"login"`
 		GravatarId string `json:"gravatar_id"`
@@ -207,6 +258,17 @@ type EventIssue struct {
 func (e *EventIssue) IsCode() bool {
 	return true
 }
+func (e *EventIssue) GetID() string {
+	return e.Id
+}
+func (e *EventIssue) GetType() string {
+	return e.Type
+}
+func (e *EventIssue) GetCreatedAt() time.Time {
+	return e.CreatedAt
+}
+
+// ------------------------------------------------
 
 type EventPullRequest struct {
 	*TypedEvent
@@ -573,9 +635,8 @@ type EventPullRequest struct {
 			ChangedFiles        int         `json:"changed_files"`
 		} `json:"pull_request"`
 	} `json:"payload"`
-	Public    bool      `json:"public"`
-	CreatedAt time.Time `json:"created_at"`
-	Org       struct {
+	Public bool `json:"public"`
+	Org    struct {
 		Id         int    `json:"id"`
 		Login      string `json:"login"`
 		GravatarId string `json:"gravatar_id"`
@@ -586,4 +647,13 @@ type EventPullRequest struct {
 
 func (e *EventPullRequest) IsCode() bool {
 	return true
+}
+func (e *EventPullRequest) GetID() string {
+	return e.Id
+}
+func (e *EventPullRequest) GetType() string {
+	return e.Type
+}
+func (e *EventPullRequest) GetCreatedAt() time.Time {
+	return e.CreatedAt
 }
