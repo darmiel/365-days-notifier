@@ -8,4 +8,4 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: 1.17.x
-      - run: go run main.go -u darmiel -a ${{ secrets.PUSH_APP_KEY }} -r ${{ secrets.PUSH_RECIPIENT_KEY }} -g ${{ secrets.GH_PAT }} -F true
+      - run: go run . -u darmiel -a ${{ secrets.PUSH_APP_KEY }} -r ${{ secrets.PUSH_RECIPIENT_KEY }} -g ${{ secrets.GH_PAT }} -F true
