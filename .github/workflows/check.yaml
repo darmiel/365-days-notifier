@@ -1,8 +1,8 @@
 name: Check 365
 on:
   schedule:
-    - cron: 0 18 * * *
-    - cron: 0 22 * * *
+    - cron: 0 16 * * *
+    - cron: 0 20 * * *
 
 jobs:
   check:
