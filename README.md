@@ -1,3 +1,4 @@
+<img align="right" float="right" src="https://user-images.githubusercontent.com/71837281/137635977-f1505666-13f8-4897-8e7a-0f2461b49dae.png" height="256px" width="256px">
 # 365-days-notifier
 For more than half a year, I've been trying to get at least in touch with code or the open source community every day. 
 This little tool is supposed to remind me every day to fulfill this goal, should I not have done anything ~~productive~~ on GitHub that day.
