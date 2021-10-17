@@ -71,7 +71,8 @@ func main() {
 				continue
 			}
 			// check if activity is from today
-			if isToday(a.CreatedAt) && !ForceFail {
+			if a.IsProductive() && isToday(a.CreatedAt) && !ForceFail {
+				fmt.Println("INF | Found activity from today! :)")
 				return
 			}
 		}
