@@ -49,32 +49,34 @@ func main() {
 	if GitHubApiKey != "" {
 		headers["Authorization"] = "token " + GitHubApiKey
 	}
-	// make GitHub api request
 	fmt.Println("INF | Checking activity for", GitHubUser)
-	res, err := req.Get(fmt.Sprintf("https://api.github.com/users/%s/events", GitHubUser), headers)
-	if err != nil {
-		panic(err)
-	}
 
-	// parse the response in the most weird way you can imagine...
-	var raw []interface{}
-	if err = res.ToJSON(&raw); err != nil {
-		panic(err)
-	}
-	var activities []CodeActivity
-	if activities, err = ParseActivities(raw); err != nil {
-		panic(err)
-	}
+	// ForceFail: always fail to test push service
+	if !ForceFail {
+		// make GitHub api request
+		res, err := req.Get(fmt.Sprintf("https://api.github.com/users/%s/events", GitHubUser), headers)
+		if err != nil {
+			panic(err)
+		}
 
-	// check activities
-	for _, a := range activities {
-		// check if activity is from today
-		if isToday(a.GetCreatedAt()) && !ForceFail {
-			return
+		// parse the response in the most weird way you can imagine...
+		var activities []*TypedEvent
+		if err = res.ToJSON(&activities); err != nil {
+			panic(err)
 		}
-		if !a.IsPublic() && ExcludePrivate {
-			continue
+
+		// check activities
+		for _, a := range activities {
+			if !a.Public && ExcludePrivate {
+				continue
+			}
+			// check if activity is from today
+			if isToday(a.CreatedAt) && !ForceFail {
+				return
+			}
 		}
+	} else {
+		fmt.Println("INF | Force failing because specified by flag")
 	}
 	fmt.Println("WARN :: Found no activity for today!")
 
@@ -86,9 +88,15 @@ func main() {
 		URL:      "https://github.com/" + GitHubUser,
 		URLTitle: "GitHub/" + GitHubUser,
 	}
-	var resp *pushover.Response
+	var (
+		resp *pushover.Response
+		err  error
+	)
 	if resp, err = app.SendMessage(message, recipient); err != nil {
 		panic(err)
 	}
-	fmt.Printf("message sent! %+v\n", resp)
+	fmt.Println("INF | Message sent:")
+	fmt.Println("---")
+	fmt.Println(resp.String())
+	fmt.Println("---")
 }
