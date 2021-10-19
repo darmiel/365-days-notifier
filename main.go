@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/gregdel/pushover"
 	"github.com/imroc/req"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -15,46 +17,49 @@ func isToday(date time.Time) bool {
 	return daten >= nown && daten <= nown+86400
 }
 
+const (
+	DefaultMessageText  = "Hey! 👋 You did nothing productive today!"
+	DefaultMessageTitle = "365 Days of Code 🎉"
+)
+
 func main() {
 	var (
-		GitHubUser       string
-		GitHubApiKey     string
-		PushAppKey       string
-		PushRecipientKey string
-		ExcludePrivate   bool
-		ForceFail        bool
+		GitHubUser       = flag.String("u", "", "(required) GitHub User")
+		PushAppKey       = flag.String("a", "", "(required) Pushover App Key")
+		PushRecipientKey = flag.String("r", "", "(required) Pushover Recipient Key")
+		GitHubApiKey     = flag.String("g", "", "(optional) GitHub API Token for private activity")
+		ExcludePrivate   = flag.Bool("P", false, "(optional) exclude private activity")
+		ForceFail        = flag.Bool("F", false, "(optional) force fail to test push service")
+		MessageText      = flag.String("mText", DefaultMessageText, "(optional) Message Text")
+		MessageTitle     = flag.String("mTitle", DefaultMessageTitle, "(optional) Message Title")
 	)
-
-	flag.StringVar(&GitHubUser, "u", "", "(required) GitHub User")
-	flag.StringVar(&GitHubApiKey, "g", "", "(optional) GitHub API Token for private activity")
-	flag.StringVar(&PushAppKey, "a", "", "(required) Pushover App Key")
-	flag.StringVar(&PushRecipientKey, "r", "", "(required) Pushover Recipient Key")
-	flag.BoolVar(&ExcludePrivate, "P", false, "(optional) exclude private activity")
-	flag.BoolVar(&ForceFail, "F", false, "(optional) force fail to test push service")
 	flag.Parse()
 
-	if GitHubUser == "" {
+	// check required flags
+	if *GitHubUser == "" {
 		panic("GitHub User cannot be empty")
 	}
-	if PushAppKey == "" {
+	if *PushAppKey == "" {
 		panic("Push App Key cannot be empty")
 	}
-	if PushRecipientKey == "" {
+	if *PushRecipientKey == "" {
 		panic("Push Recipient cannot be empty")
 	}
+
+	// flags from env
 
 	// include api key?
 	// an api key is optional, but provides access to private activities
 	headers := req.Header{}
-	if GitHubApiKey != "" {
-		headers["Authorization"] = "token " + GitHubApiKey
+	if *GitHubApiKey != "" {
+		headers["Authorization"] = "token " + *GitHubApiKey
 	}
-	fmt.Println("INF | Checking activity for", GitHubUser)
+	fmt.Println("INFO | Checking activity for", *GitHubUser)
 
 	// ForceFail: always fail to test push service
-	if !ForceFail {
+	if !*ForceFail {
 		// make GitHub api request
-		res, err := req.Get(fmt.Sprintf("https://api.github.com/users/%s/events", GitHubUser), headers)
+		res, err := req.Get(fmt.Sprintf("https://api.github.com/users/%s/events", *GitHubUser), headers)
 		if err != nil {
 			panic(err)
 		}
@@ -67,27 +72,27 @@ func main() {
 
 		// check activities
 		for _, a := range activities {
-			if !a.Public && ExcludePrivate {
+			if !a.Public && *ExcludePrivate {
 				continue
 			}
 			// check if activity is from today
-			if a.IsProductive() && isToday(a.CreatedAt) && !ForceFail {
-				fmt.Println("INF | Found activity from today! :)")
+			if a.IsProductive() && isToday(a.CreatedAt) && !*ForceFail {
+				fmt.Println("INFO | Found activity from today! :)")
 				return
 			}
 		}
 	} else {
-		fmt.Println("INF | Force failing because specified by flag")
+		fmt.Println("INFO | Force failing because specified by flag")
 	}
-	fmt.Println("WARN :: Found no activity for today!")
+	fmt.Println("WARN | Found no activity for today!")
 
-	app := pushover.New(PushAppKey)
-	recipient := pushover.NewRecipient(PushRecipientKey)
+	app := pushover.New(*PushAppKey)
+	recipient := pushover.NewRecipient(*PushRecipientKey)
 	message := &pushover.Message{
-		Message:  "Hey! 👋 You did nothing productive today!",
-		Title:    "365 Days of Code 🎉",
-		URL:      "https://github.com/" + GitHubUser,
-		URLTitle: "GitHub/" + GitHubUser,
+		Message:  *MessageText,
+		Title:    *MessageTitle,
+		URL:      "https://github.com/" + *GitHubUser,
+		URLTitle: "GitHub/" + *GitHubUser,
 	}
 	var (
 		resp *pushover.Response
@@ -96,8 +101,28 @@ func main() {
 	if resp, err = app.SendMessage(message, recipient); err != nil {
 		panic(err)
 	}
-	fmt.Println("INF | Message sent:")
-	fmt.Println("---")
-	fmt.Println(resp.String())
-	fmt.Println("---")
+	fmt.Println("INFO | Message sent:")
+	wrap(resp.String())
+}
+
+func wrap(msg string) {
+	m := 1
+	for _, l := range strings.Split(msg, "\n") {
+		if x := len(l); x > m {
+			m = x
+		}
+	}
+	fmt.Println(strings.Repeat("-", m))
+	fmt.Println(msg)
+	fmt.Println(strings.Repeat("-", m))
+}
+
+func env(flag *string, key string) *string {
+	// flag already set?
+	if *flag == "" {
+		if x, ok := os.LookupEnv(key); ok {
+			*flag = x
+		}
+	}
+	return flag
 }
