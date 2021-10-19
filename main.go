@@ -35,6 +35,14 @@ func main() {
 	)
 	flag.Parse()
 
+	// from env
+	env(GitHubUser, "GITHUB_USER")
+	env(GitHubApiKey, "GITHUB_PAT")
+	env(PushAppKey, "PUSHOVER_APP_KEY")
+	env(PushRecipientKey, "PUSHOVER_RECIPIENT_KEY")
+	env(MessageText, "MESSAGE_TEXT")
+	env(MessageTitle, "MESSAGE_TITLE")
+
 	// check required flags
 	if *GitHubUser == "" {
 		panic("GitHub User cannot be empty")
@@ -45,8 +53,6 @@ func main() {
 	if *PushRecipientKey == "" {
 		panic("Push Recipient cannot be empty")
 	}
-
-	// flags from env
 
 	// include api key?
 	// an api key is optional, but provides access to private activities

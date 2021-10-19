@@ -3,17 +3,22 @@ on:
   schedule:
     - cron: 0 16 * * *
     - cron: 0 20 * * *
+  workflow_dispatch:
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/setup-go@v2
         with:
           go-version: 1.17.x
-      - run: |
-         go run . -u darmiel \
-          -a ${{ secrets.PUSH_APP_KEY }} \
-          -r ${{ secrets.PUSH_RECIPIENT_KEY }} \
-          -g ${{ secrets.GH_PAT }}
+
+      - name: Check Activity
+        run: go run .
+        env:
+          GITHUB_USER: darmiel
+          GITHUB_PAT: ${{ secrets.GH_PAT }}
+          PUSHOVER_APP_KEY: ${{ secrets.PUSH_APP_KEY }}
+          PUSHOVER_RECIPIENT_KEY: ${{ secrets.PUSH_RECIPIENT_KEY }}
