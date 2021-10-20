@@ -36,7 +36,14 @@ This API returns the last X events of a user:
   ...
 ```
 
----
+### Use it yourself
+Do you have a similar goal or want a daily reminder to be ~~productive~~? 
+1. **Fork** this repository and change the username to your username in the [workflow](https://github.com/darmiel/365-days-notifier/blob/master/.github/workflows/check.yaml) file.
+    * You can also customize the cronjob here
+2. Create the **secrets** `PUSH_APP_KEY` and `PUSH_RECIPIENT_KEY` in the repository settings. 
+    * The secret `GH_PAT` is only required if you want to include private activity.
+3. Go to **Actions** tab and enable actions
+4. Done!
 
 ### Pushover
 If no activity is found that day, I get bugged via push message on my phone, for which I use the super duper app [Pushover](https://pushover.net/):
