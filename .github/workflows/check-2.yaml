@@ -1,7 +1,7 @@
-name: Check 365 1/2
+name: Check 365 2/2
 on:
   schedule:
-    - cron: 0 16 * * *
+    - cron: 0 20 * * *
   workflow_dispatch:
 
 jobs:
@@ -19,3 +19,4 @@ jobs:
           GITHUB_PAT: ${{ secrets.GH_PAT }}
           PUSHOVER_APP_KEY: ${{ secrets.PUSH_APP_KEY }}
           PUSHOVER_RECIPIENT_KEY: ${{ secrets.PUSH_RECIPIENT_KEY }}
+          MESSAGE_TEXT: 'I see you are still lazy'
