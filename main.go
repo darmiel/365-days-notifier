@@ -40,8 +40,8 @@ func main() {
 	env(GitHubApiKey, "GITHUB_PAT")
 	env(PushAppKey, "PUSHOVER_APP_KEY")
 	env(PushRecipientKey, "PUSHOVER_RECIPIENT_KEY")
-	env(MessageText, "MESSAGE_TEXT")
-	env(MessageTitle, "MESSAGE_TITLE")
+	envDef(MessageText, "MESSAGE_TEXT", DefaultMessageText)
+	envDef(MessageTitle, "MESSAGE_TITLE", DefaultMessageTitle)
 
 	// check required flags
 	if *GitHubUser == "" {
@@ -129,6 +129,15 @@ func env(flag *string, key string) *string {
 		if x, ok := os.LookupEnv(key); ok {
 			*flag = x
 		}
+	}
+	return flag
+}
+
+func envDef(flag *string, key, def string) *string {
+	if x, ok := os.LookupEnv(key); ok {
+		*flag = x
+	} else {
+		*flag = def
 	}
 	return flag
 }
